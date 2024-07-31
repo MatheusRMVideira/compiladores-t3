@@ -7,7 +7,7 @@ public class Errors {
  
     private final ArrayList<String> errors = new ArrayList<>();
 
-    // Adiciona os erros na lista de erros
+    // Adiciona os erros no log de erros
     public void addError(int id, int line, String name){
             String base = "Linha " + line;
             switch(id)

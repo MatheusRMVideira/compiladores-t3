@@ -15,7 +15,7 @@ public class CodeGenerator extends AlgumaBaseVisitor<Void> {
 
     @Override
     public Void visitPrograma(AlgumaParser.ProgramaContext ctx) { 
-        // Escreve o início do código C no arquivo de saida final e visita as declarações
+        // Escreve o início do código C no arquivo de saida e visita as declarações
         finalOutput.append("#include <stdio.h>\n#include <stdlib.h>\n#include <string.h>\n#include <math.h>\n\n");
         if (!ctx.declaracoes().isEmpty()) 
             for (AlgumaParser.Decl_local_globalContext declaracao : ctx.declaracoes().decl_local_global())
@@ -29,7 +29,7 @@ public class CodeGenerator extends AlgumaBaseVisitor<Void> {
         return null;
     }
 
-    // Verifica o tipo de decaração e chama visitDeclaracao correspondente
+    // Verifica o tipo de declaracao e chama o handler correspondente
     @Override
     public Void visitDecl_local_global(AlgumaParser.Decl_local_globalContext ctx) {
         if (ctx.declaracao_local() != null)
@@ -41,7 +41,7 @@ public class CodeGenerator extends AlgumaBaseVisitor<Void> {
 
     @Override
     public Void visitDeclaracao_global(AlgumaParser.Declaracao_globalContext ctx) {
-        //Vê se é uma funcao e faz as devidas verificações
+        //Verifica se e uma funcao e faz a tratativa correta
         if(ctx.getChild(0).getText().equals("funcao")){
         Variable funcao = escopo.peekScope().getVar(ctx.IDENT().getText());
         finalOutput.append(funcao.getFunction().getReturnType().getFormat()).append(" ").append(funcao.name).append("(");
@@ -77,7 +77,7 @@ public class CodeGenerator extends AlgumaBaseVisitor<Void> {
         
         escopo.leaveScope();
         finalOutput.append("}\n");
-    }   //Vê se é um procedimento e faz as devidas verificações
+    }   //Verifica se e um procedure e faz a tratativa correta
         else if(ctx.getChild(0).getText().equals("procedimento")){
             Variable proc = escopo.peekScope().getVar(ctx.IDENT().getText());
             finalOutput.append("void ").append(proc.name).append("(");
@@ -109,7 +109,7 @@ public class CodeGenerator extends AlgumaBaseVisitor<Void> {
         return null;
     }
     // Verifica se é uma constante, tipo, ou declare.
-    // Em cada caso, faz as devidas adições no arquivo final
+    // Em cada caso, insere da maneira correta na saida
     @Override
     public Void visitDeclaracao_local(AlgumaParser.Declaracao_localContext ctx) {
         switch (ctx.getChild(0).getText()) {
@@ -152,7 +152,7 @@ public class CodeGenerator extends AlgumaBaseVisitor<Void> {
     }    
 
     // Verifica o tipo do comando
-    // Em cada caso, faz as validações do comando e faz as adições no arquivo final C.
+    // Em cada caso, valida o comando e insere na saida
     @Override 
     public Void visitCmd(AlgumaParser.CmdContext ctx) {
         if (ctx.cmdLeia() != null){
@@ -298,7 +298,7 @@ public class CodeGenerator extends AlgumaBaseVisitor<Void> {
 
     @Override
     public Void visitFator_logico(AlgumaParser.Fator_logicoContext ctx) {
-        // Se o operador for não, imprime '!' no arquivo final
+        // Caso o operador seja um nao, insere !
         if (ctx.getChild(0).getText().equals("nao"))
             finalOutput.append("!");
         visitParcela_logica(ctx.parcela_logica());
@@ -349,7 +349,7 @@ public class CodeGenerator extends AlgumaBaseVisitor<Void> {
         }
         return null;
     }
-    // Verifica o tipo do operador e adiciona o equivalente de C no arquivo de saida final
+    // Verifica o tipo do operador e adiciona na saida
     @Override
     public Void visitOp_relacional(AlgumaParser.Op_relacionalContext ctx){
         switch (ctx.getText()){
@@ -448,7 +448,7 @@ public class CodeGenerator extends AlgumaBaseVisitor<Void> {
         return null;
     }
 
-    // Verifica a o tipo da variável e adiciona a sintaxe correta no arquivo final
+    // Verifica verifica a variavel e insere o tipo correto na saida
     public void geraVariavel(Variable v) {
         if (v.type != null && v.type.natives != null) {
             if(null != v.type.natives)
@@ -479,7 +479,7 @@ public class CodeGenerator extends AlgumaBaseVisitor<Void> {
             finalOutput.append(String.format("%s %s", v.type.criados, v.name));
     }
 
-    // Verifica o valor da constante e adiciona o equivalente de C no arquivo final
+    // Verifica a constante e insere o tipo correto na saida
     @Override
     public Void visitValor_constante(AlgumaParser.Valor_constanteContext ctx) {
         if (ctx.CADEIA() != null)

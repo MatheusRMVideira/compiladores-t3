@@ -18,9 +18,11 @@ public class Visitor extends AlgumaBaseVisitor<Void> {
     @Override
     public Void visitDecl_local_global(AlgumaParser.Decl_local_globalContext ctx) {
         ArrayList<Variable> entrada = new ArrayList<>();
-        if (ctx.declaracao_local() != null) // Se for local,faz a verificação e adiciona em entrada
+        // Se declaracao for local
+        if (ctx.declaracao_local() != null)
             entrada = verificaDeclLocal(scope, ctx.declaracao_local());
-        else // Se for glogal, faz a verificação e adiciona em entrada
+        else
+            // A declaracao eh global
             entrada.add(verificaDeclGlobal(scope, ctx.declaracao_global()));
         
         addVarEscopo(entrada);
@@ -32,7 +34,7 @@ public class Visitor extends AlgumaBaseVisitor<Void> {
         return scope;
     }
         
-    //Adiciona as variáveis no escopo
+    //Adiciona as variáveis dentro do escopo
     public void addVarEscopo(ArrayList<Variable> var) {
         for(Variable auxVar: var) {
             scope.peekScope().add(auxVar);
@@ -92,13 +94,13 @@ public class Visitor extends AlgumaBaseVisitor<Void> {
 
     
 
-    // Faz a verificação da declGlobal
     public Variable verificaDeclGlobal(Scope escopo, AlgumaParser.Declaracao_globalContext ctx) {
+        // Faz a verificação da declaracao global
         Variable auxVar = null;
         
         switch(Correspondencia(ctx.getStart().getText())){
         
-            case 4:    // Se for uma função  
+            case 4:    // Se for uma funcao
                 Type typeRetorno = validaEstendido(ctx.tipo_estendido());
                 escopo.createNewScope();
                 retAux = true;
@@ -164,8 +166,9 @@ public class Visitor extends AlgumaBaseVisitor<Void> {
     }
     
     
-    // Verifica o tipo
+
     public int Correspondencia(String receptor){
+        // Verifica o tipo
         switch(receptor){
             case "tipo": return 1;
             case "constante": return 2;
@@ -175,9 +178,9 @@ public class Visitor extends AlgumaBaseVisitor<Void> {
         }
     return 0;
     }
-    //Valida os parametros e retorna uma lista de variáveis correspondetes dos parametros
+
     public ArrayList<Variable> validaParametros(Scope escopo, AlgumaParser.ParametrosContext ctx) {
-        
+        //Valida os parametros e retorna uma lista de variaveis correspondetes aos parametros
         ArrayList<Variable> retorno = new ArrayList<>();
 
         for (AlgumaParser.ParametroContext param : ctx.parametro()){
@@ -210,10 +213,10 @@ public class Visitor extends AlgumaBaseVisitor<Void> {
         return new Type(Type.Nativos.INVALIDO);
     }
     
-    //Valida os comandos do contexto
-    //Verifica todos os comandos: Escreva, leia, se, faca, enquanto e atribuição e retorne
-    //Caso o comando esteja com erro, adiciona o erro na lista e erros.
+
     public void validaCmd(TokenTable ts, AlgumaParser.CmdContext ctx) {
+        //Valida os comandos do contexto
+        //Verifica todos os comandos. Caso possua erro, adiciona no log de erros
         String base = "";
         if (ctx.cmdAtribuicao() != null){
             Variable left = validaIdent(ts, ctx.cmdAtribuicao().identificador());
@@ -271,7 +274,7 @@ public class Visitor extends AlgumaBaseVisitor<Void> {
             Variable auxVar;
             auxVar = validaIdent(escopo.peekScope(), ident);
             
-            // Se já estiver sido declarado anteriormente, adiciona erro na lista de erros
+            // Se ja estiver sido declarado, adiciona erro no log de erros
             if (auxVar.type != null)
                 errorlist.addError(1,ident.getStart().getLine(), ident.getText());
             else {
@@ -287,7 +290,7 @@ public class Visitor extends AlgumaBaseVisitor<Void> {
             }
         }
         
-        // Se tipo for nulo ou inválido, adiciona erro na lista de errros
+        // Se tipo for nulo ou invalido, adiciona erro no log de erros
         if (type.natives != null && type.natives == Type.Nativos.INVALIDO)
             errorlist.addError(3,ctx.start.getLine(), ctx.tipo().getText());
         
@@ -302,9 +305,9 @@ public class Visitor extends AlgumaBaseVisitor<Void> {
         return ((ctx.getChild(0).getText().contains("^")) ? new Type(validaTipoIdent(ctx.tipo_basico_ident())): validaTipoIdent(ctx.tipo_basico_ident()));
     }
 
-    // Valida a parcela lógica da expressão
-    // Se for uma expressão relacional, retorna a chamada da função validaExpRelacional. Senão, retorna um novo tipo lógico 
     public Type validaParcelaLogica(TokenTable ts, AlgumaParser.Parcela_logicaContext ctx) {
+        // Valida a parte lagica da expressão
+        // Se for uma expressao relacional, chama a validaExpRelacional. Se nao, retorna um novo tipo logico
         if (ctx.exp_relacional() != null)
             return validaExpRelacional(ts, ctx.exp_relacional());
         return new Type(Type.Nativos.LOGICO);
@@ -324,7 +327,7 @@ public class Visitor extends AlgumaBaseVisitor<Void> {
         return Type.Nativos.INVALIDO;
     }
 
-    // Faz a validação da  expressão do contexto
+    // Valida a expressao do contexto
     public Type validaExpressao(TokenTable ts, AlgumaParser.ExpressaoContext ctx) {
         Type type = validaTermosLogicos(ts, ctx.termo_logico(0));
         if (ctx.termo_logico().size() > 1) {

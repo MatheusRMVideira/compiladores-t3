@@ -21,11 +21,11 @@ public class ErrorHandler extends BaseErrorListener {
         Token token = (Token) offendingSymbol;
 
 
-        // Cria o padrão de todos os prints de erro.
+        // Mensagem padrao para erros
         String base = "Linha " + token.getLine() + ": "; 
 
-            
-        if(eh_erro(token.getType())) {//Parte resposável pelo tratamento dos erros (a checagem é feita pela função eh_erro() )
+        //Tratativa de erros
+        if(eh_erro(token.getType())) {
             if (token.getType() == AlgumaLexer.Caracter_invalido) {
                 throw new ParseCancellationException(base + token.getText() + " - simbolo nao identificado");
             }
@@ -38,14 +38,15 @@ public class ErrorHandler extends BaseErrorListener {
             }
 
         }
-        else if (token.getType() == Token.EOF)//Se o erro não for léxico, ele cai nos casos restantes(sintatico ou EOF )
+        //Se o erro nao for lexico, verifica se eh EOF, se nao for eh sintatico
+        else if (token.getType() == Token.EOF)
                 throw new ParseCancellationException(base + "erro sintatico proximo a EOF");
         else
                 throw new ParseCancellationException(base + "erro sintatico proximo a " + token.getText());
         }
 
     private static Boolean eh_erro(int tkType) {
-        //retorna True quando se trata de um dos 3 erros léxicos
+        //True caso seja um dos 3 tipos de erro lexico
                 return tkType == AlgumaLexer.CADEIA_SEM_FIM || tkType == AlgumaLexer.COMENTARIO_SEM_FIM
                         || tkType == AlgumaLexer.Caracter_invalido;
     }
